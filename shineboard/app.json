@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "shineboard",
+    "slug": "shineboard",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "shineboard",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.zsat.shineboard"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "7e499347-d810-4677-8cec-203ddd1db46b"
+      }
+    }
+  }
+}
