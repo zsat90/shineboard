@@ -3,13 +3,14 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import 'react-native-get-random-values';
 import { v4 as uuidv4 } from 'uuid';
-import { Kid, Star } from '../types/model';
+import { Kid} from '../types/model';
 
 interface KidState {
   kids: Kid[];
   addKid: (name: string, gender: 'male' | 'female') => void;
   giveStar: (kidId: string) => void;
   removeKid: (kidId: string) => void;
+  removeStar: (kidId: string) => void;
 }
 
 export const useKidStore = create<KidState>()(
@@ -32,14 +33,22 @@ export const useKidStore = create<KidState>()(
 
       giveStar: (kidId: string) =>
         set((state) => ({
-          kids: state.kids.map((kid) => (kid.id === kidId ? { ...kid, stars: kid.stars + 1 } : kid)),
+          kids: state.kids.map((kid) =>
+            kid.id === kidId ? { ...kid, stars: kid.stars + 1 } : kid
+          ),
         })),
 
-      removeKid: (kidId) => {
+      removeKid: (kidId) =>
         set((state) => ({
           kids: state.kids.filter((kid) => kid.id !== kidId),
-        }));
-      },
+        })),
+
+      removeStar: (kidId: string) =>
+        set((state) => ({
+          kids: state.kids.map((kid) =>
+            kid.id === kidId ? { ...kid, stars: Math.max(0, kid.stars - 1) } : kid
+          ),
+        })),
     }),
 
     {

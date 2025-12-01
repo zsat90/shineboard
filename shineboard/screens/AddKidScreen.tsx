@@ -1,31 +1,33 @@
 import { View, StyleSheet, Alert } from 'react-native';
-import { Text, Button, TextInput, IconButton } from 'react-native-paper';
+import { Text, Button, TextInput} from 'react-native-paper';
 import React, { useState } from 'react';
-import { addKidHelper } from '@/utils/kidHelper';
+import { useKidStore } from '@/store/kidStore';
 import { Dropdown } from 'react-native-element-dropdown';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { RootStackParamList } from '@/navigation/RootNavigator';
 
 const AddKidScreen = () => {
-  const handleAddKid = async () => {
+  const addKid = useKidStore((state) => state.addKid);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [text, setText] = useState('');
+  const [gender, setGender] = useState<'male' | 'female' | undefined>(undefined);
+
+  const handleAddKid = () => {
     if (!text.trim()) {
       return Alert.alert('Name is required');
     }
+    if (!gender) {
+      return Alert.alert('Gender is required');
+    }
 
     try {
-      await addKidHelper(text, gender);
+      addKid(text.trim(), gender);
       navigation.navigate('Dashboard');
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       Alert.alert('Could not add kid', message);
     }
   };
-
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const [text, setText] = useState('');
-  const [gender, setGender] = useState<'male' | 'female' | undefined>(undefined);
-
-  <IconButton icon="arrow-left" size={24} onPress={() => navigation.navigate('Dashboard')} />;
 
   return (
     <View>

@@ -1,6 +1,5 @@
 import { View, Alert, StyleSheet, TouchableOpacity, Image, ScrollView, ImageSourcePropType } from 'react-native';
 import React, { useRef, useState } from 'react';
-import { removeKidHelper } from '@/utils/kidHelper';
 import { Avatar, Text, Button, Card, IconButton } from 'react-native-paper';
 import { NavigationProp, useNavigation, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '@/navigation/RootNavigator';
@@ -13,29 +12,19 @@ const KidProfileScreen = () => {
   const { kidId } = route.params as { kidId: string };
   const kid = useKidStore((state) => state.kids.find((k) => k.id === kidId));
   const giveStar = useKidStore((state) => state.giveStar);
+  const removeStar = useKidStore((state) => state.removeStar);
+  const removeKid = useKidStore((state) => state.removeKid);
 
   const starTotal = kid?.stars ?? 0;
   const flyingImageRef = useRef<FlyingImageHandle>(null);
   const [flyingImageSource, setFlyingImageSource] = useState<ImageSourcePropType | null>(null);
 
-  const handleRemoveKid = async () => {
-    try {
-      await removeKidHelper(kidId);
-      navigation.navigate('Dashboard');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      Alert.alert('Could not remove kid', message);
-    }
+  const handleRemoveKid = () => {
+    removeKid(kidId);
+    navigation.navigate('Dashboard');
   };
 
   const handleStarComplete = () => {
-    if (!kid) return;
-
-    giveStar(kid.id);
-
-    if (kid.stars + 1 >= 20) {
-      Alert.alert('🎉 Prize Won!', 'You earned 20 stars and won a prize!');
-    }
     setFlyingImageSource(null);
   };
 
@@ -58,8 +47,6 @@ const KidProfileScreen = () => {
     },
   ];
 
-  <IconButton icon="arrow-left" size={24} onPress={() => navigation.navigate('Dashboard')} />;
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.kidInfo}>
@@ -72,6 +59,15 @@ const KidProfileScreen = () => {
 
       <View style={styles.starTotalContainer}>
         <Text style={styles.starTotal}>⭐ Stars: {starTotal}/20</Text>
+        {kid && (
+          <IconButton
+            icon="minus-circle-outline"
+            size={28}
+            onPress={() => removeStar(kid.id)}
+            disabled={kid.stars <= 0}
+            accessibilityLabel="Remove a star"
+          />
+        )}
       </View>
 
       <Text style={styles.sectionHeader}>Choose Star</Text>
@@ -82,6 +78,17 @@ const KidProfileScreen = () => {
             key={index}
             style={styles.cardTouchable}
             onPress={() => {
+              if (!kid) return;
+
+              // Update stars immediately
+              giveStar(kid.id);
+
+              const newStars = kid.stars + 1;
+              if (newStars >= 20) {
+                Alert.alert('🎉 Prize Won!', 'You earned 20 stars and won a prize!');
+              }
+
+              // Then run the animation for visual feedback
               setFlyingImageSource(star.image);
               setTimeout(() => {
                 flyingImageRef.current?.start();
@@ -123,6 +130,10 @@ const styles = StyleSheet.create({
   },
   starTotalContainer: {
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 15,
+    width: '100%',
   },
   starTotal: {
     fontSize: 28,

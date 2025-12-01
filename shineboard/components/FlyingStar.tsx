@@ -74,6 +74,8 @@ const FlyingImage = forwardRef<FlyingImageHandle, FlyingImageProps>(({ source, s
   );
 });
 
+FlyingImage.displayName = 'FlyingImage';
+
 const styles = StyleSheet.create({
   image: {
     position: 'absolute',
